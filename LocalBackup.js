@@ -1,0 +1,144 @@
+// ==UserScript==
+// @name         NGA优化摸鱼体验插件-标记备份
+// @namespace    127.0.0.1
+// @version      1.0.0
+// @author       DelCrona
+// @description  适用范围：不想使用webdav且标记数量巨大
+// @license      MIT
+// @match        *://bbs.nga.cn/*
+// @match        *://ngabbs.com/*
+// @match        *://nga.178.com/*
+// @match        *://g.nga.cn/*
+// @require      https://cdn.staticfile.org/blueimp-md5/2.19.0/js/md5.min.js
+// @grant        unsafeWindow
+// @grant        GM_xmlhttpRequest
+// @run-at       document-start
+// @inject-into  content
+// ==/UserScript==
+
+(function (registerPlugin) {
+    'use strict';
+    registerPlugin({
+        name: 'LocalBackup',  // 插件唯一KEY
+        title: '本地备份',  // 插件名称
+        desc: '将标记列表备份到本地/上传',  // 插件说明
+        settings: [{
+            key: 'textInput',
+            title: '重要提示：使用前请先用本体功能备份标记',
+            desc: ''
+        }, {
+            key: 'numberInput',
+            title: '上传功能上传非标记文件',
+            desc: ''
+        }, {
+            key: 'checkBox',
+            title: '会导致标记直接损坏！请务必确认文件是否为标记文件.json!',
+            desc: ''
+        }, {
+            key: 'desc',
+            title: '备份文件：自动下载标记文件',
+            desc: ''
+        }, {
+            key: 'desc2',
+            title: '上传标记：上传后自动覆盖！',
+            desc: ''
+        }],
+        buttons: [ {
+            title: '备份标记',
+            action: 'backup'
+        },{
+            title: '上传标记',
+            action: 'loadFile'
+        }],
+        beforeSaveSettingFunc(setting) {
+            // console.log(setting)
+            // return 值则不会保存，并抛出错误
+            // return '拦截'
+        },
+        preProcFunc() {
+
+        },
+        initFunc() {
+            /*
+            console.log('已运行: initFunc()')
+            console.log('插件ID: ', this.pluginID)
+            console.log('插件配置: ', this.pluginSettings)
+            console.log('主脚本: ', this.mainScript)
+            console.log('主脚本引用库: ', this.mainScript.libs)
+            */
+        },
+        postProcFunc() {
+            
+        },
+        renderThreadsFunc($el) {
+
+        },
+        renderFormsFunc($el) {
+            
+        },
+        renderAlwaysFunc() {
+            // console.log('循环运行: renderAlwaysFunc()')
+        },
+        async backup(){
+            const markList = this.mainScript.getModule('MarkAndBan').markList;
+            const markListStr = JSON.stringify(markList);
+            const filename = "NGA_marklist";
+            const mimeType = "application/json";
+            // 模拟下载功能导出列表
+            const blob = new Blob([markListStr], {type: mimeType});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        },
+        async loadFile(){
+            // 创建一个隐藏的上传按钮
+            const _this = this;
+            var uploadButton = document.createElement('input');
+            uploadButton.type = 'file';
+            uploadButton.style.display = 'none';
+            uploadButton.id = 'hiddenFileInput'; // 为上传按钮设置一个ID，方便后续操作
+            // 将隐藏的上传按钮添加到DOM中
+            document.body.appendChild(uploadButton);
+            // 为上传按钮添加change事件监听器
+            uploadButton.addEventListener('change', function() {
+                // 获取用户选择的文件
+                var file = this.files[0];
+                if (file) {
+                    // 读取文件内容
+                    const markList = _this.mainScript.getModule('MarkAndBan').markList;
+                    const markListStr = JSON.stringify(markList);
+                    var reader = new FileReader();
+                    reader.onload = function(event) {
+                        // 文件读取完成后，输出文件内容
+                        // console.log('文件内容:', event.target.result);
+                        const markUpload = event.target.result;
+                        // 在这里可以对文件内容进行进一步处理，例如显示在网页上或发送到服务器
+                        if (md5(markUpload) !== md5(markListStr)){
+                            const markListStr = markUpload;
+                            const markList = JSON.parse(markListStr);
+                            _this.mainScript.getModule('MarkAndBan').markList = markList;
+                            _this.mainScript.setValue("hld__NGA_mark_list", markListStr);
+                            _this.mainScript.popNotification('标记名单列表已还原');
+                        }
+                        // 清理资源
+                        reader = null;
+                    };
+                    // 以文本格式读取文件内容
+                    reader.readAsText(file);
+                }
+                // 移除上传按钮
+                document.body.removeChild(uploadButton);
+            });
+            // 模拟点击上传按钮
+            uploadButton.click(); 
+        }
+    })
+
+})(function(plugin) {
+    plugin.meta = GM_info.script
+    unsafeWindow.ngaScriptPlugins = unsafeWindow.ngaScriptPlugins || []
+    unsafeWindow.ngaScriptPlugins.push(plugin)
+});
