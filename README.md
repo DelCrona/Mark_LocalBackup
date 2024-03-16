@@ -1,10 +1,10 @@
-# NGA优化摸鱼体验插件-标记整页
+# NGA优化摸鱼体验插件-本地版标记备份
 
 ## ⚠本脚本为[NGA优化摸鱼体验](https://greasyfork.org/zh-CN/scripts/393991-nga%E4%BC%98%E5%8C%96%E6%91%B8%E9%B1%BC%E4%BD%93%E9%AA%8C)的插件，使用需先安装👉[本体](https://greasyfork.org/zh-CN/scripts/393991-nga%E4%BC%98%E5%8C%96%E6%91%B8%E9%B1%BC%E4%BD%93%E9%AA%8C)👈
 
 ### 下载地址
 
-👉[点我下载](https://greasyfork.org/zh-CN/scripts/489007)
+👉[点我下载](https://greasyfork.org/zh-CN/scripts/489936)
 
 ### 概述&更新列表
 
@@ -13,8 +13,12 @@
 仅推荐懒得使用webdav且标记数量巨大的用户使用
 
 其他一切情况仅推荐webdav插件！更加完善安全！
+
 其他一切情况仅推荐webdav插件！更加完善安全！
+
 其他一切情况仅推荐webdav插件！更加完善安全！
+
+使用前请务必用本体的导出方式备份数据，因本插件任何问题导致标记列表丢失，我先投降！
 
 ### 使用方式
 
