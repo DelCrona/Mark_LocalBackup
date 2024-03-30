@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NGA优化摸鱼体验插件-标记备份
 // @namespace    https://github.com/DelCrona/Mark_LocalBackup
-// @version      1.0.0
+// @version      1.0.1
 // @author       DelCrona
 // @description  适用范围：不想使用webdav且标记数量巨大
 // @license      MIT
