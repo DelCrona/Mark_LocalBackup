@@ -28,27 +28,38 @@
             desc: ''
         }, {
             key: 'numberInput',
-            title: '上传功能上传非标记文件',
+            title: '上传功能上传非标记文件会导致标记直接损坏！',
             desc: ''
         }, {
             key: 'checkBox',
-            title: '会导致标记直接损坏！请务必确认文件是否为标记文件.json!',
+            title: '请务必确认文件是否为标记文件.json!',
             desc: ''
         }, {
+            key: 'checkBox',
+            title: '覆盖上传同理，使用前优先备份！',
+            desc: ''
+        },{
             key: 'desc',
             title: '备份文件：自动下载标记文件',
             desc: ''
         }, {
             key: 'desc2',
-            title: '上传标记：上传后自动覆盖！',
+            title: '覆盖上传标记：上传后直接覆盖原标记',
+            desc: ''
+        }, {
+            key: 'desc3',
+            title: '合并上传标记：将现存标记和上传标记合并',
             desc: ''
         }],
         buttons: [ {
             title: '备份标记',
             action: 'backup'
         },{
-            title: '上传标记',
+            title: '覆盖上传标记',
             action: 'loadFile'
+        },{
+            title: '合并上传标记',
+            action: 'mergeFile'
         }],
         beforeSaveSettingFunc(setting) {
             // console.log(setting)
@@ -133,6 +144,63 @@
                 document.body.removeChild(uploadButton);
             });
             // 模拟点击上传按钮
+            uploadButton.click(); 
+        },
+        async mergeFile(){
+            const _this = this;
+            var uploadButton = document.createElement('input');
+            uploadButton.type = "file";
+            uploadButton.style.display = "none";
+            uploadButton.id = 'hiddenFileInput'; // 为上传按钮设置一个ID，方便后续操作
+            document.body.appendChild(uploadButton);
+            uploadButton.addEventListener('change', function() {
+                // 获取用户选择的文件
+                var file = this.files[0];
+                if (file) {
+                    // 读取文件内容
+                    const fileA = _this.mainScript.getModule('MarkAndBan').markList;
+                    const markListStr = JSON.stringify(fileA);
+                    var reader = new FileReader();
+                    reader.onload = function(event) {
+                        // 文件读取完成后，输出文件内容
+                        // console.log('文件内容:', event.target.result);
+                        const markUpload = event.target.result;
+                        // 在这里可以对文件内容进行进一步处理，例如显示在网页上或发送到服务器
+                        if (md5(markUpload) !== md5(markListStr)){
+                            const fileB = JSON.parse(markUpload);
+                            var mergedJSON = fileA;
+                            fileB.forEach(function(objB){
+                                var matchObj = mergedJSON.findIndex(function(objA){
+                                    return objA.uid === objB.uid;
+                                });
+                                if (matchObj !== -1){
+                                    objB.marks.forEach(function(markB){
+                                    var existMark = mergedJSON[matchObj].marks.find(function(markA){
+                                        return markA.mark === markB.mark;
+                                    });
+                                    if (!existMark){
+                                        mergedJSON[matchObj].marks.push(markB);
+                                    }
+                                    })
+                                } else {
+                                    mergedJSON.push(objB);
+                                }
+                            })
+                            const mergedJSONStr = JSON.stringify(mergedJSON);
+                            _this.mainScript.getModule('MarkAndBan').markList = mergedJSON;
+                            _this.mainScript.setValue("hld__NGA_mark_list", mergedJSONStr);
+                            _this.mainScript.popNotification('标记名单列表已合并');    
+                        }
+                        // 清理资源
+                        reader = null;
+                    };
+                    // 以文本格式读取文件内容
+                    reader.readAsText(file);
+                }
+                // 移除上传按钮
+                document.body.removeChild(uploadButton);
+            });
+
             uploadButton.click(); 
         }
     })
