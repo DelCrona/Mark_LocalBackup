@@ -176,7 +176,7 @@
                                 if (matchObj !== -1){
                                     objB.marks.forEach(function(markB){
                                     var existMark = mergedJSON[matchObj].marks.find(function(markA){
-                                        return markA === markB;
+                                        return markA.mark === markB.mark;
                                     });
                                     if (!existMark){
                                         mergedJSON[matchObj].marks.push(markB);
