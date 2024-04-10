@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NGA优化摸鱼体验插件-标记备份
 // @namespace    https://github.com/DelCrona/Mark_LocalBackup
-// @version      1.0.2
+// @version      1.0.3
 // @author       DelCrona
 // @description  适用范围：不想使用webdav且标记数量巨大
 // @license      MIT
@@ -91,9 +91,23 @@
             // console.log('循环运行: renderAlwaysFunc()')
         },
         async backup(){
+            function formatDate(date) {
+                var month = date.getMonth() + 1;
+                var day = date.getDate();
+                var hours = date.getHours();
+                var minutes = date.getMinutes();
+                var year = date.getFullYear();
+                month = month.toString().padStart(2, '0');
+                day = day.toString().padStart(2, '0');
+                hours = hours.toString().padStart(2, '0');
+                minutes = minutes.toString().padStart(2, '0');
+                year = year.toString();
+                return year + month + day + hours + minutes;
+            }
+            var fDate = formatDate(new Date());
             const markList = this.mainScript.getModule('MarkAndBan').markList;
             const markListStr = JSON.stringify(markList);
-            const filename = "NGA_marklist";
+            var filename = "NGA_marklist_"+ fDate;
             const mimeType = "application/json";
             // 模拟下载功能导出列表
             const blob = new Blob([markListStr], {type: mimeType});
